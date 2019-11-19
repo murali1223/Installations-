@@ -1,0 +1,81 @@
+#Ansible Installation
+ 
+ Ansible is an open source automation platform. It is very, very simple to setup and yet powerful. 
+  Ansible can help you with configuration management, application deployment, task automation.
+
+#Installation steps:
+  Add a EPEL (Extra Packages for Enterprise Linux)third party repository to get packages for Ansible
+  rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#Install Ansible
+  yum install ansible -y 
+#Check Ansible version
+  ansible --version
+#Create a new user for ansible administration & grant admin access to user (Master and Slave)
+  useradd ansadmin
+  passwd ansadmin
+# below command addes ansadmin to sudoers file. But strongly recommended to use "visudo" command if you are aware vi or nano editor. 
+echo "ansadmin ALL=(ALL) ALL" >> /etc/sudoers
+# open vim /etc/ssh/sshd_config
+  
+  PasswordAuthentication yes
+  #PermitEmptyPasswords no
+  #PasswordAuthentication no   -----> Apply like this 
+# open vim /etc/ssh/ssh_config
+  PasswordAuthentication yes
+  
+  service sshd restart
+  
+Change ownership of /etc/ansible/
+#chown -R ansadmin:ansadmin /etc/ansible
+
+Login as a ansadmin user on master and generate ssh key(Master)
+#ssh-keygen
+Copy keys to target servers
+#ssh-copy-id <target-server or private IP>  
+
+#Update target servers information on /etc/ansible/hosts file (Master)
+$echo "10.10.x.x" > /etc/ansible/hosts
+or
+vi /etc/ansible/hosts
+[all_hosts]
+<ip address>
+:wq!
+
+
+Testing
+run ansible command as a ansadmin user it should be successful (Master)
+#ansible all -m ping
+#ansible [all_hosts] -m ping
+#ansible <ip add> -m ping
+
+create a example file in ansible server in ansadmin user directory and copy into slave machines
+#ansible all -m copy -a "src=/home/ansadmin/file1 dest=/home/ansadmin"
+
+Install any packages into remote or client machines
+#ansible -s all -m service -a "name=httpd state=started"
+To remove a remote user
+#ansible all -m user -a "name=testuser state=absent"
+To create a user in remote machine
+#ansible all -m user -a "name=testuser password=<encrypted password>"
+To change a file permission
+#ansible all -m file -a "dest=/home/ansadmin/file1 mode=777"
+Rebooting
+#ansible all -a "/sbin/reboot"
+
+
+########################Upto Now Do everything in Target Server also###############################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
